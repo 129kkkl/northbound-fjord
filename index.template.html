@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111b21">
+<title>Northbound. | 北行</title>
+<style>
+  :root{color-scheme:dark;--ink:#e8e8df;--muted:#b0bbb8;--glass:rgba(14,27,32,.62);--line:rgba(235,240,225,.22);--accent:#e6ca93}
+  *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#10191e;color:var(--ink)}
+  body{font-family:Inter,"Segoe UI","Microsoft YaHei",sans-serif;user-select:none;-webkit-user-select:none;touch-action:none}
+  #scene{position:fixed;inset:0;display:block;width:100%;height:100%;outline:none}
+  #veil{position:fixed;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(5,13,17,.38),transparent 37%),linear-gradient(0deg,rgba(4,12,15,.25),transparent 28%)}
+  #ui{position:fixed;inset:0;pointer-events:none;transition:opacity .35s}
+  #ui.hidden{opacity:0;visibility:hidden}
+  .pointer{pointer-events:auto}
+  .masthead{position:absolute;top:clamp(20px,4vh,45px);left:clamp(20px,4vw,64px);max-width:390px}
+  .eyebrow{font-size:10px;letter-spacing:.28em;font-weight:700;color:#e8d5ad;text-transform:uppercase;text-shadow:0 2px 10px #071116}
+  h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(41px,5.8vw,77px);font-weight:400;line-height:1;letter-spacing:-.065em;margin:10px 0 8px;text-shadow:0 3px 20px #071116}
+  .subtitle{font-size:12px;color:#d9e0dc;letter-spacing:.18em;margin:0 0 15px;text-shadow:0 2px 10px #071116}
+  .chapter{display:inline-block;border-top:1px solid rgba(235,240,225,.54);padding-top:11px;font-size:11px;line-height:1.65;letter-spacing:.13em;color:#d3d9d4;text-shadow:0 2px 10px #071116}
+  .chapter b{display:block;font-family:Georgia,"Microsoft YaHei",serif;font-size:20px;font-weight:400;letter-spacing:.02em;color:#fff}
+  .topbar{position:absolute;top:28px;right:clamp(18px,3vw,45px);display:flex;gap:7px;align-items:center}
+  .toolbar{position:absolute;left:50%;bottom:clamp(22px,3.3vh,38px);transform:translateX(-50%);display:flex;align-items:center;gap:7px;background:var(--glass);border:1px solid var(--line);border-radius:7px;padding:7px;box-shadow:0 16px 60px rgba(0,0,0,.18);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);max-width:calc(100vw - 26px)}
+  button{font:inherit;color:var(--ink);background:transparent;border:1px solid transparent;border-radius:4px;white-space:nowrap;cursor:pointer;transition:background .2s,border-color .2s,color .2s;touch-action:manipulation}
+  button:hover,button:focus-visible{outline:none;background:rgba(230,235,219,.14);border-color:var(--line)}
+  button:active{background:rgba(230,235,219,.24)}
+  .toolbar button,.topbar button{height:34px;padding:0 12px;font-size:11px;letter-spacing:.07em}
+  .toolbar .active,.topbar .active{border-color:rgba(230,202,147,.55);color:#ffdfaa;background:rgba(230,202,147,.12)}
+  .divider{width:1px;height:20px;background:var(--line);margin:0 2px;flex:none}
+  .iconbtn{min-width:34px;padding:0 8px!important;font-size:15px!important}
+  .rightnote{position:absolute;right:clamp(20px,3vw,45px);bottom:clamp(84px,9vh,110px);font-size:10px;line-height:1.8;letter-spacing:.08em;text-align:right;color:#e3e6df;text-shadow:0 2px 10px #061114}
+  .rightnote span{display:block;color:#b7c9c2}
+  .soundmenu{position:absolute;right:clamp(20px,3vw,45px);top:72px;padding:14px;background:var(--glass);border:1px solid var(--line);border-radius:5px;backdrop-filter:blur(18px);min-width:190px;display:none}
+  .soundmenu.open{display:block}.soundmenu label{display:flex;align-items:center;gap:9px;font-size:11px;margin:7px 0;cursor:pointer}.soundmenu input{accent-color:#e6ca93}
+  .mobile-controls{display:none;position:absolute;left:0;right:0;bottom:82px;justify-content:space-between;padding:0 18px;pointer-events:none}
+  .mobile-controls .pad{display:flex;gap:7px;pointer-events:auto}.mobile-controls button{background:var(--glass);border:1px solid var(--line);width:52px;height:52px;font-size:22px;backdrop-filter:blur(10px)}
+  #restore-ui{position:fixed;bottom:18px;right:18px;display:none;z-index:3;background:var(--glass);border:1px solid var(--line);height:35px;padding:0 11px;font-size:11px;backdrop-filter:blur(10px)}
+  body.ui-hidden #restore-ui{display:block}
+  #loading{position:fixed;inset:0;background:#10191e;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:5;transition:opacity .7s;pointer-events:none}
+  #loading.done{opacity:0;visibility:hidden}.loadmark{font-family:Georgia,serif;font-size:52px;letter-spacing:-.06em}.loadline{width:130px;height:1px;background:#426168;margin:17px}.loadline i{display:block;height:1px;width:32%;background:#e6ca93;animation:load 2s infinite ease-in-out}@keyframes load{50%{width:100%}}
+  #error{position:fixed;inset:0;background:#10191e;z-index:6;display:none;align-items:center;justify-content:center;padding:30px;text-align:center;line-height:1.7}
+  #error.show{display:flex}
+  @media(max-width:750px){.masthead{top:19px;left:20px}.eyebrow{font-size:9px}h1{font-size:47px;margin:7px 0 5px}.subtitle{font-size:10px;margin-bottom:8px}.chapter{padding-top:7px;font-size:9px}.chapter b{font-size:15px}.topbar{top:14px;right:12px}.topbar button{height:30px;padding:0 7px;font-size:10px}.toolbar{bottom:16px;gap:2px;padding:5px}.toolbar button{font-size:10px;padding:0 7px;height:32px}.toolbar .iconbtn{min-width:29px;font-size:13px!important;padding:0 5px!important}.rightnote{display:none}.mobile-controls{display:flex}.soundmenu{top:53px;right:12px}}
+  @media(max-width:430px){.toolbar .hide-small{display:none}.masthead{max-width:210px}h1{font-size:40px}.topbar button{font-size:9px;padding:0 6px}}
+</style>
+</head>
+<body>
+<canvas id="scene" aria-label="可操控的北欧峡湾 3D 航行场景"></canvas>
+<div id="veil"></div>
+<div id="ui">
+  <div class="masthead"><div class="eyebrow">A VOYAGE THROUGH THE NORTH</div><h1>Northbound.</h1><p class="subtitle">北行 · 峡湾航记</p><div class="chapter"><span id="chapter-index">CHAPTER 01 / 03</span><b id="chapter-title">晨雾中的峡湾</b></div></div>
+  <div class="topbar pointer" role="group" aria-label="光照预设"><button data-light="dawn" class="active">清晨</button><button data-light="overcast">阴天</button><button data-light="moon">月光</button></div>
+  <div class="toolbar pointer" role="toolbar" aria-label="航行控制"><button id="camera-btn" title="切换相机模式 (C)">跟随镜头</button><button id="auto-btn" class="active" title="自动航行 (A键转向会取消)">自动航行</button><div class="divider"></div><button id="pause-btn" class="iconbtn" title="暂停 / 继续 (空格)">Ⅱ</button><button id="reset-btn" class="iconbtn" title="重置 (R)">↺</button><button id="sound-btn" class="iconbtn" title="开启声音">♪</button><button id="fullscreen-btn" class="iconbtn hide-small" title="全屏">⤢</button><button id="hide-btn" class="iconbtn" title="隐藏界面 (H)">◫</button></div>
+  <div class="rightnote">W / S 速度　A / D 转向　拖拽环顾<span id="telemetry">航速 0.0 kn · 航向 000°</span></div>
+  <div class="soundmenu pointer" id="sound-menu"><div class="eyebrow">SOUND / 声景</div><label><input type="checkbox" data-sound="water" checked> 水声</label><label><input type="checkbox" data-sound="wind" checked> 风声</label><label><input type="checkbox" data-sound="birds" checked> 鸟鸣</label><label><input type="checkbox" data-sound="oars" checked> 划桨声</label></div>
+  <div class="mobile-controls"><div class="pad"><button data-hold="left" aria-label="左转">‹</button><button data-hold="right" aria-label="右转">›</button></div><div class="pad"><button data-hold="slower" aria-label="减速">−</button><button data-hold="faster" aria-label="加速">＋</button></div></div>
+</div>
+<button id="restore-ui" class="pointer" title="显示界面 (H)">显示界面</button>
+<div id="loading"><div class="loadmark">Northbound.</div><div class="loadline"><i></i></div><div class="eyebrow">ENTERING THE FJORD</div></div>
+<div id="error"><div><div class="loadmark">Northbound.</div><p>需要支持 WebGL 的现代浏览器。<br><small id="error-detail"></small></p></div></div>
+<script>/*__THREE_BUNDLE__*/</script>
+<script>/*__SCENE_SCRIPT__*/</script>
+</body>
+</html>
